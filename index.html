@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Q&A Grid with Categories</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f9f9f9;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .filter {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+    }
+
+    .question {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 0.5rem;
+      color: #333;
+    }
+
+    .card.open .answer {
+      display: block;
+    }
+
+    .tags {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .filter, .card:hover {
+        display: none !important;
+      }
+
+      .grid {
+        display: block;
+      }
+
+      .card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border: none;
+        box-shadow: none;
+        margin-bottom: 1rem;
+        cursor: default;
+      }
+
+      .answer {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Lumen Scholars / Honors Program: Frequently Asked Questions</h1>
+
+  <div class="filter">
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter">
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="grid" id="qaGrid"></div>
+
+  <script>
+    const questions = [
+      { 
+        question: "Where can I find information about the Lumen Scholars Program? ", 
+        answer: "Up-to-date information and resources about the program can be found internally in the Portal > Office Sites > Honors Program. A summary of information can be found on The Honors Program page on the McDaniel College website. An “At a Glance” document in the Portal provides an overview of external-facing information.", 
+        tags: ["Students", "Faculty", "Staff"]
+      },
+      { 
+        question: "I am an Honors student / Lumen Scholar and need help with advising. Who should I contact?", 
+        answer: "If your advising question is related to your major and/or minor programs, start by contacting your academic advisor or Student Success Coach. If your question is related to the Honors / Lumen Scholars Program, reach out to the Assistant Director for assistance. ", 
+        tags: ["Students"]
+      },
+      { 
+        question: "I am a student enrolled in the current Honors Program. Will the new Lumen Scholars Program affect me? ", 
+        answer: "No, the Lumen Scholars Program is simply a new curriculum/framework for the Honors Program at McDaniel. Students graduating in or before spring 2028 will complete their current Honors Program requirements. Honors electives, honors enriched experiences, and study abroad as an honors elective module option will still be offered. Students starting at McDaniel in fall 2025 will participate in the Lumen Scholars Program. All honors students, regardless of program, will be eligible to participate in Lumen Scholars events and programming, including the Honors Club.", 
+        tags: ["Students"]
+      },
+      { 
+        question: "How many students are in the Lumen Scholars Program? ", 
+        answer: "Each year’s cohort is capped at 40 students, due to human resources and budget constraints. Each honors course is capped at 20 students.", 
+        tags: ["Students", "Faculty", "Staff"]
+      },
+	  { 
+		question: "How many Honors courses do Lumen Scholars need to take?", 
+		answer: "Lumen Scholars take one course per year. One section of each course will be offered in both fall and spring semesters. The requirements are: HON-1100: Embed (first year), HON-2100: Explore (second year, HON-1100 pre-requisite), HON-3100: Examine or HON-3150 Enlighten (third year, HON-2100 pre-requisite), HON-4100: Envision (HON-3100 or 3150, pre-requisite), and Maintain a 3.5 GPA", 
+		tags: ["Students", "Faculty", "Staff"]
+  	  },
+	  { 
+		question: "How is an honors course different from a non-Honors course?", 
+		answer: "In general, honors courses go broader and deeper than non-honors courses. A document and recording of a faculty development presentation called Philosophy and Pedagogy of the Lumen Scholars Program is available to view in the Honors Program Portal site. Lumen courses are meant to emphasize interdisciplinarity and/or gaps in between traditional majors and minors at McDaniel. Instructors will be working with students from a variety of disciplines. Courses in the Lumen Honors Program share common approaches and practices including The Place as Text framework; Experiential and active learning; At least one common read. This could be a full text (book), article, case study, etc; In-class discussions with an emphasis on student-led conversations and inquiry; A common deliverable or project wherein students work/create together, with encouragement for students to take the lead; Talking to strangers, through interactions either on or off campus, in-person or virtual; An emphasis on observation and reflection; Incorporate civic engagement, a broad umbrella term that can include research and data-driven solutions; Awareness, advocacy, and activism; Creative and cultural contributions to a community; Entrepreneurship and innovation; Professional and workplace initiatives such as promoting sustainability; Digital activism.", 
+        tags: ["Students", "Faculty"]
+      },
+      { 
+		question: "What benefits do students have as part of the Lumen Scholars Program?",
+        answer: "Students in the Lumen Scholars Program are offered a “menu of enhancements” including: Priority registration before the general student population: Four, unique core courses that fulfill McDaniel Plan general education requirements; Tuition and accommodations covered with a travel stipend to support a special January Term opportunity during the student’s junior year at McDaniel Europe, tentatively titled Lumen Budapest; A one-day retreat for incoming first-year Lumens with the Director as part of an expanded McDaniel Local experience; Access to the Lumen Lounge (Hill G-09) which includes free printing; Access to special Lumen events throughout the year including a Welcome Dinner for first-year students during orientation; an October event; a March event; the Lumen Lecture; and End-of-Year Celebration for seniors; Access to the Honors Club and its programming; Invitations to special events such as lunch with the annual PBK lecturer and Lumen lecturer; Mentorship and additional advising by the Director and Assistant Director.",
+        tags: ["Students", "Faculty", "Staff"]
+	  },
+	  { 
+        question: "How are first-year students admitted to the Lumen Scholars Program?", 
+        answer: "Prospective first-year students are invited to apply for the program by our Admissions team. This invitation depends on the academic rigor of their high school and their overall GPA. Upon invitation, students complete an application, a sample of which can be found in the Honors Program Office Site on the Portal. This application is reviewed by the Director and members of the Honors Program Advisory Committee. The committee considers academic integrity, the creativity of the response, and the quality and organization of the response.", 
+        tags: ["Faculty", "Staff"]
+      },
+      { 
+        question: "How can a student transfer into the Lumen Scholars Program?", 
+        answer: "Pathways for internal and external transfer students are being developed as the new Lumen Scholars Program rolls out. Beginning in 2026, if spots are available, eligible sophomores at McDaniel will be invited to apply for the program. In that instance, HON-1100 Embed will be waived.", 
+        tags: ["Students", "Faculty", "Staff"]
+      },
+      { 
+        question: "Is financial aid, including scholarships, connected to a student’s participation in the Lumen Scholars Program?",
+        answer: "No, scholarships and financial aid are not connected to a student’s participation in the Honors / Lumen Scholars Program. If a student leaves the program, their financial aid will not be impacted.",
+        tags: ["Students", "Faculty", "Staff"]
+      },
+      { 
+        question: "Is there Honors housing for Lumen Scholars?", 
+        answer: "No. Due to the high number of medical single accommodations requests, Residence Life cannot accommodate special housing for all honors students. Admissions staff no longer promote honors housing to prospective students. However, honors students are given first choice for housing in one tower of Daniel McLea Hall and Forlines House.  ", 
+        tags: ["Students", "Faculty", "Staff"]
+      },
+      { 
+        question: "A 3.5 GPA is a requirement of the Lumen Scholars Program. What if a Lumen Scholar’s GPA falls below the 3.5 minimum?", 
+        answer: "First and second-year students whose GPAs fall below 3.2 may remain in the program but will not be given priority registration or given first choice for housing in DMC and Forlines house. By the end of the sophomore year, if a student’s GPA falls below 3.2, they will need to meet with the Assistant Director to discuss a GPA recovery plan to remain in the program. To graduate with the distinction of College Scholar/Lumen Scholar, an honors student’s GPA must meet or exceed 3.5. In March of the student’s senior year, the Registrar’s Office confirms those students who will graduate from the Program. If the student’s GPA is below 3.5 at that time, they will not graduate with the distinction of College/Lumen Scholar.", 
+        tags: ["Students", "Faculty", "Staff"]
+      },
+      { 
+        question: "Is an honors student / Lumen Scholar required to complete departmental honors in their major program(s)?",
+        answer: "No, there is not a requirement for current honors students / Lumen Scholars to participate in their major’s departmental honors program. Departmental honors requirements vary widely across departments, and while honors students / Lumen Scholars will likely be eligible to participate in or receive the departmental honors distinction, it is not a general requirement for all students in the Lumen Scholars Program.",
+        tags: ["Students", "Faculty", "Staff"]
+      },
+      { 
+        question: "How may a student leave the Honors / Lumen Scholars program?",
+        answer: "A student may exit the Honors Program/Lumen Scholars Program at any time by using the Exit Form in the Honors Program Office Site on the Portal. There is an option on the form for the student to request a meeting with the Assistant Director or Director before officially exiting the program.",
+        tags: ["Students", "Faculty", "Staff"]
+      },
+	  { 
+        question: "I’m interested in participating in the Lumen Budapest opportunity. How do I sign up?",
+        answer: "During the sophomore year, Lumen Scholars will declare whether they want to participate in the optional Lumen Budapest experience during the January Term of their junior year. A student must have a 3.5 GPA at the time of declaration to participate in this opportunity. Questions about this opportunity may be directed to the Assistant Director, who will then direct students to the Study Abroad Office.",
+        tags: ["Students"]
+      },
+	  { 
+        question: "How do I receive access to the Lumen (Honors) Lounge in Hill G-09?",
+        answer: "Email the Assistant Director or Director to receive a 5-digit code to the keypad on the door of Hill G-09. In some but not all cases, the last five-digits on the back of the student’s McDaniel ID card serve as their code for the Lounge.",
+        tags: ["Students"]
+      },
+	  { 
+        question: "As a current Honors / Lumen Scholar, how can I get involved in the Honors Club?",
+        answer: "The Honors Club is a student-led organization on campus that emphasizes scholarship, service, and social opportunities. The Honors Club consists of an executive board who hosts regular meetings and special events each semester such as Paint Nights, Halloween parties, and game/movie nights. To participate in the Honors Club, service hours are required. Honors Club Executive Board members can answer any questions about service hours and opportunities.", 
+        tags: ["Students"]
+      },
+	  { 
+        question: "Are service hours required of Honors students / Lumen Scholars?",
+        answer: "Officially, no, service hours are not currently required in the program. If a student wishes to be a part of the Honors Club, service hours are required to maintain membership. These hours are tracked by the club’s Executive Board.", 
+        tags: ["Students"]
+      },
+	  { 
+        question: "I’m interested in teaching a course in the Lumen Scholars Program. How do I get started?",
+        answer: "Faculty from all disciplines are welcome to teach one of the “E” courses in the program: Embed, Explore, Examine, Enlighten, Envision. The Director accepts expressions of interest anytime. Professional development opportunities and processes will be shared with faculty every semester.", 
+        tags: ["Faculty"]
+      },
+    ];
+
+    const container = document.getElementById("qaGrid");
+    const filterSelect = document.getElementById("categoryFilter");
+
+    // Get unique tags
+    const allTags = Array.from(new Set(questions.flatMap(q => q.tags))).sort();
+    allTags.forEach(tag => {
+      const opt = document.createElement("option");
+      opt.value = tag;
+      opt.textContent = tag;
+      filterSelect.appendChild(opt);
+    });
+
+    function renderQuestions(filter = "all") {
+      container.innerHTML = "";
+      questions
+        .filter(q => filter === "all" || q.tags.includes(filter))
+        .forEach(item => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <div class="question">${item.question}</div>
+            <div class="answer">${item.answer}</div>
+            <div class="tags">Tags: ${item.tags.join(", ")}</div>
+          `;
+          card.addEventListener("click", () => {
+            card.classList.toggle("open");
+          });
+          container.appendChild(card);
+        });
+    }
+
+    filterSelect.addEventListener("change", () => {
+      renderQuestions(filterSelect.value);
+    });
+
+    renderQuestions();
+  </script>
+</body>
+</html>
